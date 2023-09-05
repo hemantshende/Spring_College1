@@ -8,24 +8,37 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-@Data
+@Getter
+@Setter
+@ToString
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -36,57 +49,75 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    @Column(name ="first_name",nullable = false)
+	private String firstName;
+
+    @Column(name ="last_name", nullable = false)
+	private String lastName;
     
-    private String firstName;
-    private String lastName;
+    @Column(name ="email",nullable = false, unique = true)
+    @Email
+	private String email;
+
+    @Column( nullable = false)
+	private String password;
     
-    @NotNull
-    @Column(unique = true)
-    private String email;
-    
-    @NotBlank
-    @Size(min = 8, max = 100)
-    private String password;
-    
-    @Transient 
-    private String ComfirmPass;
-    
-    @Column(unique = true)
-    private String PhoneNumber;
+	@Enumerated(EnumType.STRING)
+	private Role role;
     
     @Enumerated(EnumType.STRING)
-    @NotNull
-    private Role role;
+    private Gender gender;
+    
+    @Column(name ="address",length=50)
+    private String address;
+    
+    @Pattern(regexp = "\\+91\\d{10}", message = "Phone number must start with +91 and be followed by 10 digits")
+    @Column(name = "phone_number", length = 15, nullable = false)
+	private String phoneNumber;
     
     
+    private boolean enabled=false;
+    
+    private boolean otpVerification=false;
+    
+ 
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
+    @JsonIgnore
     @Override
     public String getUsername() {
         // email in our case
         return email;
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isEnabled() {
         return true;
     }
+
+    
 }

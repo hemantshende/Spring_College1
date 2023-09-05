@@ -1,14 +1,25 @@
 package com.example.Spring_College.services;
 
-import com.example.Spring_College.dao.JwtAuthenticationResponse;
-import com.example.Spring_College.dao.SignUpRequest;
-import com.example.Spring_College.dao.SigninRequest;
+import java.io.UnsupportedEncodingException;
+
+import org.springframework.http.ResponseEntity;
+
+import com.example.Spring_College.dto.JwtAuthenticationResponse;
+import com.example.Spring_College.dto.SignUpRequest;
+import com.example.Spring_College.dto.SigninRequest;
 import com.example.Spring_College.entities.User;
 
+import jakarta.mail.MessagingException;
+
 public interface AuthenticationService {
-    JwtAuthenticationResponse signup(SignUpRequest request);
+//    JwtAuthenticationResponse signup(SignUpRequest request);
+	
+//	ResponseEntity<?> signup(SignUpRequest request);
 
     JwtAuthenticationResponse signin(SigninRequest request);
     
-//    JwtAuthenticationResponse signup(User request);
+    public User addUser(SignUpRequest user) throws UnsupportedEncodingException, MessagingException;
+
+    public ResponseEntity<?> signup(SignUpRequest request);
+    
 }

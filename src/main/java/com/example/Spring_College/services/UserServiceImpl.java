@@ -1,11 +1,16 @@
 package com.example.Spring_College.services;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,56 +18,41 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.example.Spring_College.dao.SignUpRequest;
+import com.example.Spring_College.dto.SignUpRequest;
 import com.example.Spring_College.entities.User;
 import com.example.Spring_College.repository.UserRepository;
 
-
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+
+	@Autowired
+	private final UserRepository userRepository;
 	
 	@Autowired
-    private final UserRepository userRepository;
-	
-	
-    @Override
-    public UserDetailsService userDetailsService() {
-        return new UserDetailsService() {
-            @Override
-            public UserDetails loadUserByUsername(String username) {
-                try {
+	private JavaMailSender mailSender;
+
+	@Override
+	public UserDetailsService userDetailsService() {
+		return new UserDetailsService() {
+			@Override
+			public UserDetails loadUserByUsername(String username) {
+				try {
 					return userRepository.findByEmail(username);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					throw new RuntimeException("User Not Found");
 				}
-                        
-            }
-        };
-    }
-    public String isValidPassword(User user) {
-		String plainPassword = user.getPassword();
-		String repeatPassword = user.getComfirmPass();
 
-		if (plainPassword != null && plainPassword.equals(repeatPassword)) {
-			user.setPassword(repeatPassword);
-			return repeatPassword;
-		}
-		return null;
+			}
+		};
 	}
-    
-//    public User findByEmail(String email) {
-//		User emailCheck = userRepository.findByEmail(email);
-//		if (emailCheck == null)
-//			return null;
-//		else
-//			return emailCheck;
-//	}
 
-    public User findByEmail(String email) {
+	public User findByEmail(String email) {
 		User emailCheck = userRepository.findByEmail(email);
 		if (emailCheck == null)
 			return null;
@@ -77,16 +67,6 @@ public class UserServiceImpl implements UserService {
 		else
 			return PhoneCheck;
 	}
-	
-
-//	public User addUser(User user) {
-//		String encodedPassword =encoder.encode(user.getPassword());
-//		user.setPassword(encodedPassword);
-//		userRepository.save(user);
-//		return user;
-//	}
-
-
 
 	public String deleteUser(int userId) {
 		userRepository.deleteById(userId);
@@ -117,23 +97,70 @@ public class UserServiceImpl implements UserService {
 		List<User> userList = userRepository.findAll();
 		return userList;
 	}
+
 	@Override
-	public String isValidPassword(SignUpRequest request) {
+	public boolean isValidPassword(SignUpRequest request) {
 		// TODO Auto-generated method stub
 		String plainPassword = request.getPassword();
-		String repeatPassword = request.getComfirmPass();
+		String repeatPassword = request.getConfirmPassword();
 
 		if (plainPassword != null && plainPassword.equals(repeatPassword)) {
+
 			request.setPassword(repeatPassword);
-			return repeatPassword;
+
+			return true;
+		} else {
+			return false;
 		}
-		return null;
+
 	}
-	@Override
-	public User addUser(User user) {
-		// TODO Auto-generated method stub
-		return null;
+//	
+//	  public void register(User user, String siteURL) 
+//		        throws UnsupportedEncodingException, MessagingException {
+//		    String encodedPassword = passwordEncoder.encode(user.getPassword());
+//		    user.setPassword(encodedPassword);
+//		   
+//		    String randomCode = RandomString().;
+//		    user.setVerificationCode(randomCode);
+//		    user.set
+//		     
+//		    userRepository.save(user);
+//		     
+//		    sendVerificationEmail(user, siteURL);
+//		}
+
+	public boolean sendVerificationEmail(SignUpRequest user)
+
+			throws MessagingException, UnsupportedEncodingException {
+		String toAddress = user.getEmail();
+		String fromAddress = "shendehc11@gmail.com";
+		String senderName = "College Management";
+		String subject = "Please verify your registration";
+		String content = "Dear [[name]],<br>" + "Please click the link below to verify your registration:<br>"
+				+ "<h3><a href=\"[[URL]]\" target=\"_self\">VERIFY</a></h3>" + "Thank you,<br>" + "Your company name.";
+
+		MimeMessage message = mailSender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(message);
+
+		helper.setTo(toAddress);
+		helper.setFrom(fromAddress, senderName);
+		helper.setSubject(subject);
+
+		content = content.replace("[[name]]", user.getFirstName());
+//		String verifyURL = "/verify?code=" + userRepository.findByVerificationCode(user);
+
+		String verifyURL = "http://localhost:8080/api/v1/auth/signin";
+		content = content.replace("[[URL]]", verifyURL);
+
+		helper.setText(content, true);
+
+		if (user.getEmail() == null) {
+			return false;
+		} else {
+			mailSender.send(message);
+			return true;
+		}
+
 	}
-	
-	
+
 }

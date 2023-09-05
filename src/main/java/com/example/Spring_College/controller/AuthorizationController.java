@@ -37,9 +37,9 @@ public class AuthorizationController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		}
-			
+		}		
 	}
+	
 	
 	@GetMapping("/current-user")
 	public String getLoggedInUser(Principal principal) {

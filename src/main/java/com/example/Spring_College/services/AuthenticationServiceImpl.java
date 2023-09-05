@@ -1,5 +1,9 @@
 package com.example.Spring_College.services;
 
+import java.io.UnsupportedEncodingException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,34 +12,70 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.example.Spring_College.dao.JwtAuthenticationResponse;
-import com.example.Spring_College.dao.SignUpRequest;
-import com.example.Spring_College.dao.SigninRequest;
+import com.example.Spring_College.dto.JwtAuthenticationResponse;
+import com.example.Spring_College.dto.OtpRequest;
+import com.example.Spring_College.dto.OtpResponseDto;
+import com.example.Spring_College.dto.SignUpRequest;
+import com.example.Spring_College.dto.SigninRequest;
 import com.example.Spring_College.entities.Role;
 import com.example.Spring_College.entities.User;
 import com.example.Spring_College.repository.UserRepository;
 
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
+	@Autowired
 	private final UserRepository userRepository;
+	@Autowired
 	private final PasswordEncoder passwordEncoder;
+	@Autowired
 	private final JwtService jwtService;
+	@Autowired
 	private final AuthenticationManager authenticationManager;
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private SmsService smsService;
+	
 
-//	public JwtAuthenticationResponse signup(SignUpRequest request) {
-//		var user = User.builder().firstName(request.getFirstName()).lastName(request.getLastName())
-//				.email(request.getEmail()).password(passwordEncoder.encode(request.getPassword())).role(Role.USER)
-//				.build();
-//		userRepository.save(user);
-//		var jwt = jwtService.generateToken(user);
-//		return JwtAuthenticationResponse.builder().token(jwt).build();
-//	}
+	
+	//signup
+	public ResponseEntity<?> signup(SignUpRequest request) {
+		
+		User user;
+		try {
+			user = addUser(request);
+			var token = jwtService.generateToken(user);
+			String message = "User Added Successfully";
+			OtpResponseDto OtpResponse=smsService.sendSMS(request);
+			
+			// Create a Map to hold the response data
+//		Map<String, Object> response = new HashMap<>(); --->It does not maintain insertion order
+			
+			Map<String, Object> response = new LinkedHashMap<>();
+			response.put("user", user);
+//			response.put("userId", user.getId());
+//			response.put("emailId", user.getEmail());
+//			response.put("phoneNumber", user.getPhoneNumber());
+			response.put("token", token);
+			response.put("message", message);
+			response.put("OTP", OtpResponse);
+			
+			// Return the Map as the response entity with HTTP status code 200 OK
+			return ResponseEntity.ok(response);
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			String error=e.getMessage();
+			
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+		}
+	}
 
+	//signin
 	@Override
 	public JwtAuthenticationResponse signin(SigninRequest request) {
 		authenticationManager
@@ -48,23 +88,30 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		}
 				
 		var jwt = jwtService.generateToken(user);
-		return JwtAuthenticationResponse.builder().token(jwt).build();
+		String message="SignIn successfull...!!!";
+		user.setEnabled(true);
+		return JwtAuthenticationResponse.builder().token(jwt).message(message).build();
 	}
 
-	public JwtAuthenticationResponse signup(SignUpRequest user) {
-	    // To validate password
-		String s=userService.isValidPassword(user);
-	    if (s !=null) {
+	//addUser
+	public User addUser(SignUpRequest user) throws UnsupportedEncodingException, MessagingException {
+		
+		boolean EmailVerification=userService.sendVerificationEmail(user);
+
+	    if ( userService.isValidPassword(user)&& EmailVerification==true) {
 	        var user1 = User.builder()
 	                .firstName(user.getFirstName())
 	                .lastName(user.getLastName())
 	                .email(user.getEmail())
 	                .password(passwordEncoder.encode(user.getPassword()))
-	                .role(Role.USER)
+	                .phoneNumber(user.getPhoneNumber())
+	                .gender(user.getGender())
+		            .role(Role.USER)
 	                .build();
 	        userRepository.save(user1);
-	        var jwt = jwtService.generateToken(user1);
-	        return JwtAuthenticationResponse.builder().token(jwt).build();
+	        user1.setEnabled(true);//-----after adding user to database we set 
+	        return user1;
+	        
 	    } else {
 	        throw new IllegalArgumentException("Password and confirm password do not match");
 	    }

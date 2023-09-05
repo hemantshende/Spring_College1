@@ -1,32 +1,34 @@
 package com.example.Spring_College.services;
 
-
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 
-import com.example.Spring_College.dao.JwtAuthenticationResponse;
-import com.example.Spring_College.dao.SignUpRequest;
+import com.example.Spring_College.dto.JwtAuthenticationResponse;
+import com.example.Spring_College.dto.SignUpRequest;
 import com.example.Spring_College.entities.User;
 
+import jakarta.mail.MessagingException;
 
 public interface UserService {
-    UserDetailsService userDetailsService();
+	UserDetailsService userDetailsService();
 
 	List<User> getAllUsers();
 
-	String isValidPassword(User user);
+//	String isValidPassword(User user);
 
 	User findByEmail(String email);
 
 	User findByPhno(String phoneNumber);
 
-	String isValidPassword(SignUpRequest request);
+	boolean isValidPassword(SignUpRequest request);
 
-	User addUser(User user);
+//	public void register(User user, String siteURL) throws UnsupportedEncodingException, MessagingException;
+
+	public boolean sendVerificationEmail(SignUpRequest request) throws MessagingException, UnsupportedEncodingException;
 
 //	JwtAuthenticationResponse signup(User user);
 
-//	void addUser(User user);
 }
