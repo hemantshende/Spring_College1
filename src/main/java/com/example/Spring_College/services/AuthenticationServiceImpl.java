@@ -52,6 +52,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			String message = "User Added Successfully";
 			OtpResponseDto OtpResponse=smsService.sendSMS(request);
 			
+			
 			// Create a Map to hold the response data
 //		Map<String, Object> response = new HashMap<>(); --->It does not maintain insertion order
 			
@@ -62,7 +63,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 //			response.put("phoneNumber", user.getPhoneNumber());
 			response.put("token", token);
 			response.put("message", message);
-			response.put("OTP", OtpResponse);
+//			response.put("OTP", OtpResponse);
 			
 			// Return the Map as the response entity with HTTP status code 200 OK
 			return ResponseEntity.ok(response);

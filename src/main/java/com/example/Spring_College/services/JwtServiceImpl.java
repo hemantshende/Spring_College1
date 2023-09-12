@@ -19,15 +19,37 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class JwtServiceImpl implements JwtService {
     @Value("${token.signing.key}")
-    private String jwtSigningKey;
+    public String jwtSigningKey;
     @Override
     public String extractUserName(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
+    public String extractPhoneNumberFromToken(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+
+            // Extract the phone number claim from the claims
+            String phoneNumber = (String) claims.get("phone_number"); // Replace with your actual claim key
+
+            return phoneNumber;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null; // Return null on any error
+        }
+    }
+
     @Override
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
+    }
+    
+    public String extractJwtToken(String authorizationHeader) {
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            return authorizationHeader.substring(7); // Remove "Bearer " prefix to extract the token.
+        } else {
+            return null;
+        }
     }
 
     @Override

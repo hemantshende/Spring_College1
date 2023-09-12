@@ -1,6 +1,5 @@
 package com.example.Spring_College.config;
 
-
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 import org.springframework.context.annotation.Bean;
@@ -20,8 +19,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.example.Spring_College.services.UserService;
 
 import lombok.RequiredArgsConstructor;
-
-
 
 
 @Configuration
@@ -58,5 +55,7 @@ public class SecurityConfiguration {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
             throws Exception {
         return config.getAuthenticationManager();
+        
     }
+   
 }
