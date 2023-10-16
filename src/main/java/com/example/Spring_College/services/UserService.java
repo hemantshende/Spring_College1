@@ -16,6 +16,7 @@ public interface UserService {
 	UserDetailsService userDetailsService();
 
 	List<User> getAllUsers();
+	public User findUserById(int userId);
 
 //	String isValidPassword(User user);
 

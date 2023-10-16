@@ -73,13 +73,9 @@ public class UserServiceImpl implements UserService {
 		return "Successfully Deleted";
 	}
 
-	public Optional<User> findUserById(int userId) {
-		Optional<User> user1 = userRepository.findById(userId);
-		if (user1.isPresent()) {
-			return user1;
-		} else {
-			return null;
-		}
+	public User findUserById(int userId) {
+		User user1 = userRepository.findById(userId).orElse(null);
+		return user1;
 	}
 
 	public User updateUser(int userId) {

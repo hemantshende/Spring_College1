@@ -14,7 +14,7 @@ import jakarta.annotation.PostConstruct;
 @SpringBootApplication
 @EnableConfigurationProperties
 public class SpringCollegeApplication {
-	
+
 	@Autowired
 	private TwilioConfig twilioConfig;
 
