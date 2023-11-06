@@ -67,15 +67,6 @@ public class AcademicServiceImpl implements AcademicService {
 	}
 
 	@Override
-	public Academic updateAcademic(int id, Academic academic) {
-		if(academicRepository.existsById(id)) {
-			return academicRepository.save(academic);
-		}else {
-			return null;
-		}	
-	}
-
-	@Override
 	public boolean deleteAcademic(int id) {
 		if(academicRepository.existsById(id)) {
 			
@@ -84,14 +75,31 @@ public class AcademicServiceImpl implements AcademicService {
 		}
 		return false;
 	}
+	
+	public Academic updateAcademic(int academicId, int qualificationId, int interestsId, String previousCollegeName, String specialization, List<String> languagesKnown, List<byte[]> files, int userId) {
+	    // Check if the Academic record with the specified academicId exists
+	    Academic existingAcademic = academicRepository.findById(academicId)
+	            .orElse(null);
 
-	@Override
-	public Academic createAcademic(Academic academic) {
-		// TODO Auto-generated method stub
-		return null;
+	    if (existingAcademic != null) {
+	        // Update the existing Academic record with the new data
+	        existingAcademic.setQualification(qualificationRepository.findById(qualificationId)
+	                .orElseThrow(() -> new EntityNotFoundException("Qualification not found")));
+	        existingAcademic.setInterests(interestsRepository.findById(interestsId)
+	                .orElseThrow(() -> new EntityNotFoundException("Interests not found")));
+	        existingAcademic.setPreviousCollegeName(previousCollegeName);
+	        existingAcademic.setSpecialization(specialization);
+	        existingAcademic.setLaguagesKnown(languagesKnown);
+	        existingAcademic.setFiles(files);
+	        existingAcademic.setUser(userRepository.findById(userId)
+	                .orElseThrow(() -> new EntityNotFoundException("User not found")));
+
+	        // Save the updated Academic record in the database
+	        return academicRepository.save(existingAcademic);
+	    } else {
+	        // Academic record not found
+	        return null;
+	    }
 	}
-
-
-
 
 }

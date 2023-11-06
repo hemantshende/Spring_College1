@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.Spring_College.entities.User;
@@ -29,10 +30,13 @@ public class AuthorizationController {
     
 	
 	@GetMapping("/getUsers")
-	public ResponseEntity<?> getAllUsers(){
+	public ResponseEntity<?> getAllUsers(
+			@RequestParam(value="pageNumber", defaultValue = "0", required = false) Integer pageNumber,
+			@RequestParam(value="pageSize", defaultValue = "5", required = false) Integer pageSize)
+	{
 		
 		try {
-			List<User> user=userService.getAllUsers();
+			List<User> user=userService.getAllUsers(pageNumber, pageSize);
 			return new ResponseEntity<>(user,HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();

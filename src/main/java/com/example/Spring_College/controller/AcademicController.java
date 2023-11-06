@@ -92,22 +92,42 @@ public class AcademicController {
 			
 	}
 	
-	//Update academic
-	@PutMapping("/update/{id}")
-	public ResponseEntity<?> updateAcademic(@PathVariable int id, @RequestBody Academic academic){
-		
-		try {
-			Academic updateAcademic=academicService.updateAcademic(id,academic);
-			
-			if(academic!=null) {
-				return new ResponseEntity<>(updateAcademic,HttpStatus.OK);
-			}else {
-				return new ResponseEntity<>("Please enter valid id",HttpStatus.NO_CONTENT);
-			}
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}		
+	@PutMapping("/update/{academicId}")
+	public ResponseEntity<?> updateAcademic(
+	        @PathVariable("academicId") int academicId,
+	        @RequestParam("qualificationId") int qualificationId,
+	        @RequestParam("interestsId") int interestsId,
+	        @RequestParam("previousCollegeName") String previousCollegeName,
+	        @RequestParam("specialization") String specialization,
+	        @RequestParam("languagesKnown") List<String> languagesKnown,
+	        @RequestParam("files") List<MultipartFile> files,
+	        @RequestParam("userId") int userId) throws IOException {
+
+	    List<byte[]> fileDataList = new ArrayList<>();
+	    for (MultipartFile file : files) {
+	        byte[] fileData = fileStorageService.getFileData(file);
+	        fileDataList.add(fileData);
+	    }
+
+	    try {
+	        Academic updatedAcademic = academicService.updateAcademic(academicId, qualificationId, interestsId, previousCollegeName, specialization, languagesKnown, fileDataList, userId);
+
+	        if (updatedAcademic != null) {
+	            // Academic updated successfully
+	            return new ResponseEntity<>("Academic Updated Successfully...!!!", HttpStatus.OK);
+	        } else {
+	            // Handle the case where the specified Academic record doesn't exist
+	            return new ResponseEntity<>("Academic not found", HttpStatus.NOT_FOUND);
+	        }
+	    } catch (EntityNotFoundException e) {
+	        // Handle the case where entities (qualification, interests, user) are not found
+	        return new ResponseEntity<>("Entity not found", HttpStatus.NOT_FOUND);
+	    } catch (Exception e) {
+	        // Handle other exceptions
+	        return new ResponseEntity<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
 	}
+
 	
 	//Delete Academic
 	@DeleteMapping("/delete/{id}")

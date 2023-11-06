@@ -16,17 +16,18 @@ public interface AcademicService {
 
 	Academic getAacademicById(int id);
 
-	Academic updateAcademic(int id, Academic academic);
-
 	boolean deleteAcademic(int id);
 
 //	Academic createAcademic(Academic academic, MultipartFile cvPdfPath, MultipartFile govIdJpegPath);
 
 //    public Academic createAcademic(Academic academic, List<MultipartFile> files) throws IOException;
 
-	Academic createAcademic(Academic academic);
+//	Academic createAcademic(Academic academic);
 
 	Academic createAcademic(int qualificationId, int interestsId, String previousCollegeName, String specialization,
 			List<String> languagesKnown, List<byte[]> fileDataList, int userId);
+
+	Academic updateAcademic(int academicId, int qualificationId, int interestsId, String previousCollegeName,
+			String specialization, List<String> languagesKnown, List<byte[]> fileDataList, int userId);
 
 }

@@ -15,7 +15,8 @@ import jakarta.mail.MessagingException;
 public interface UserService {
 	UserDetailsService userDetailsService();
 
-	List<User> getAllUsers();
+	List<User> getAllUsers(Integer pageNumber, Integer pageSize);
+	
 	public User findUserById(int userId);
 
 //	String isValidPassword(User user);
@@ -28,7 +29,7 @@ public interface UserService {
 
 //	public void register(User user, String siteURL) throws UnsupportedEncodingException, MessagingException;
 
-	public boolean sendVerificationEmail(SignUpRequest request) throws MessagingException, UnsupportedEncodingException;
+//	public boolean sendVerificationEmail(SignUpRequest request) throws MessagingException, UnsupportedEncodingException;
 
 //	JwtAuthenticationResponse signup(User user);
 

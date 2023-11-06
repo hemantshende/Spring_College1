@@ -1,14 +1,15 @@
 package com.example.Spring_College.services;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.UUID;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,9 +33,6 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private final UserRepository userRepository;
-	
-	@Autowired
-	private JavaMailSender mailSender;
 
 	@Override
 	public UserDetailsService userDetailsService() {
@@ -89,8 +87,12 @@ public class UserServiceImpl implements UserService {
 		}
 	}
 
-	public List<User> getAllUsers() {
-		List<User> userList = userRepository.findAll();
+	public List<User> getAllUsers(Integer pageNumber, Integer pageSize) {
+
+		Pageable p = PageRequest.of(pageNumber, pageSize);
+
+		Page<User> pagePost = userRepository.findAll(p);
+		List<User> userList = pagePost.getContent();
 		return userList;
 	}
 
@@ -107,54 +109,6 @@ public class UserServiceImpl implements UserService {
 			return true;
 		} else {
 			return false;
-		}
-
-	}
-//	
-//	  public void register(User user, String siteURL) 
-//		        throws UnsupportedEncodingException, MessagingException {
-//		    String encodedPassword = passwordEncoder.encode(user.getPassword());
-//		    user.setPassword(encodedPassword);
-//		   
-//		    String randomCode = RandomString().;
-//		    user.setVerificationCode(randomCode);
-//		    user.set
-//		     
-//		    userRepository.save(user);
-//		     
-//		    sendVerificationEmail(user, siteURL);
-//		}
-
-	public boolean sendVerificationEmail(SignUpRequest user)
-
-			throws MessagingException, UnsupportedEncodingException {
-		String toAddress = user.getEmail();
-		String fromAddress = "shendehc11@gmail.com";
-		String senderName = "College Management";
-		String subject = "Please verify your registration";
-		String content = "Dear [[name]],<br>" + "Please click the link below to verify your registration:<br>"
-				+ "<h3><a href=\"[[URL]]\" target=\"_self\">VERIFY</a></h3>" + "Thank you,<br>" + "Your company name.";
-
-		MimeMessage message = mailSender.createMimeMessage();
-		MimeMessageHelper helper = new MimeMessageHelper(message);
-
-		helper.setTo(toAddress);
-		helper.setFrom(fromAddress, senderName);
-		helper.setSubject(subject);
-
-		content = content.replace("[[name]]", user.getFirstName());
-//		String verifyURL = "/verify?code=" + userRepository.findByVerificationCode(user);
-
-		String verifyURL = "http://localhost:8080/api/v1/auth/signin";
-		content = content.replace("[[URL]]", verifyURL);
-
-		helper.setText(content, true);
-
-		if (user.getEmail() == null) {
-			return false;
-		} else {
-			mailSender.send(message);
-			return true;
 		}
 
 	}

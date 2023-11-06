@@ -39,6 +39,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	private UserService userService;
 	@Autowired
 	private SmsService smsService;
+	@Autowired
+	private EmailService emailService;
 	
 
 	
@@ -97,7 +99,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	//addUser
 	public User addUser(SignUpRequest user) throws UnsupportedEncodingException, MessagingException {
 		
-		boolean EmailVerification=userService.sendVerificationEmail(user);
+		boolean EmailVerification=emailService.sendVerificationEmail(user);
 
 	    if ( userService.isValidPassword(user)&& EmailVerification==true) {
 	        var user1 = User.builder()
