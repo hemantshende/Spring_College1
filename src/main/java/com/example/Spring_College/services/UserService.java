@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import com.example.Spring_College.dto.JwtAuthenticationResponse;
@@ -15,7 +16,7 @@ import jakarta.mail.MessagingException;
 public interface UserService {
 	UserDetailsService userDetailsService();
 
-	List<User> getAllUsers(Integer pageNumber, Integer pageSize);
+	ResponseEntity<?> getAllUsers(Integer pageNumber, Integer pageSize);
 	
 	public User findUserById(int userId);
 

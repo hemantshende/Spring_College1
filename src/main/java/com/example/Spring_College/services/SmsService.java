@@ -35,7 +35,6 @@ public class SmsService {
 	@Autowired
 	private JwtService jwtService;
 	
-	
     Map<String, String> otpMap = new HashMap<>();
 
 

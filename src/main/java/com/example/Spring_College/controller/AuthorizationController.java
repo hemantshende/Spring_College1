@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.Spring_College.dto.PaginationResponse;
 import com.example.Spring_College.entities.User;
+import com.example.Spring_College.services.PaginationService;
 import com.example.Spring_College.services.UserService;
 
 
@@ -36,7 +38,8 @@ public class AuthorizationController {
 	{
 		
 		try {
-			List<User> user=userService.getAllUsers(pageNumber, pageSize);
+			ResponseEntity<?> user=userService.getAllUsers(pageNumber, pageSize);
+			
 			return new ResponseEntity<>(user,HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();

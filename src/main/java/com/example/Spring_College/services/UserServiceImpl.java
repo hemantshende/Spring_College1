@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,6 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.Spring_College.dto.PaginationResponse;
 import com.example.Spring_College.dto.SignUpRequest;
 import com.example.Spring_College.entities.User;
 import com.example.Spring_College.repository.UserRepository;
@@ -33,6 +35,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private final UserRepository userRepository;
+	
+	 @Autowired
+	    private PaginationService<User> paginationService;
 
 	@Override
 	public UserDetailsService userDetailsService() {
@@ -45,7 +50,6 @@ public class UserServiceImpl implements UserService {
 					// TODO Auto-generated catch block
 					throw new RuntimeException("User Not Found");
 				}
-
 			}
 		};
 	}
@@ -87,14 +91,13 @@ public class UserServiceImpl implements UserService {
 		}
 	}
 
-	public List<User> getAllUsers(Integer pageNumber, Integer pageSize) {
-
-		Pageable p = PageRequest.of(pageNumber, pageSize);
-
-		Page<User> pagePost = userRepository.findAll(p);
-		List<User> userList = pagePost.getContent();
-		return userList;
-	}
+	   public ResponseEntity<PaginationResponse<User>> getAllUsers(Integer pageNumber, Integer pageSize) {
+	        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+	        Page<User> page = userRepository.findAll(pageable);
+//	        List<User> users=page.getContent();
+	        PaginationResponse<User> pageDetails = paginationService.getDetails(page);
+	        return ResponseEntity.ok(pageDetails);
+	    }
 
 	@Override
 	public boolean isValidPassword(SignUpRequest request) {
@@ -110,7 +113,5 @@ public class UserServiceImpl implements UserService {
 		} else {
 			return false;
 		}
-
 	}
-
 }
